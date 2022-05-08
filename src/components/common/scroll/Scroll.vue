@@ -44,6 +44,9 @@ methods: {
   },
   refresh() {
     this.scroll.refresh()
+  },
+  scrollTo(x, y, time=300) {
+    this.scroll.scrollTo(x, y, time)
   }
 },
 //声明周期 - 创建完成（可以访问当前this实例）
@@ -52,6 +55,7 @@ created() {},
 mounted() {
   this.scroll = new BScroll(this.$refs.wrapper, {
     observeDOM: true,
+    observeDOMImage: true,
     click: true,
     probeType: this.probeType,
     pullUpLoad: this.pullUpLoad,

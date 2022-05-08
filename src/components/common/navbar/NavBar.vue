@@ -19,7 +19,6 @@ export default {
     width: 100%;
     height: 44px;
     line-height: 44px;
-    background-color: pink;
   }
   .left, .right{
     width: 60px;

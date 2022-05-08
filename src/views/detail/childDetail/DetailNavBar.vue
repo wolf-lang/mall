@@ -1,35 +1,39 @@
 <template>
-  <div class="goods">
-    <goods-list-item
-      :goodsItem="item"
-      v-for="(item, index) in goods"
-      :key="index"
-    >
-    </goods-list-item>
+  <div>
+    <nav-bar>
+      <div slot="left" class="back">
+        <img src="~assets/img/common/back.svg" alt="">
+      </div>
+      <div slot="center" class="title">
+        <div v-for="item, index in title"
+          class="title-item" 
+          :class="{active: index === currentIndex}"
+          @click="titleClick(index)"
+          >
+          {{item}}
+          </div>
+      </div>
+    </nav-bar>
   </div>
 </template>
 
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》'
-import GoodsListItem from "./GoodsListItem";
+import NavBar from 'components/common/navbar/NavBar';
 export default {
   //import引入的组件需要注入到对象中才能使用
-  name: "GoodsList",
+  name: 'DetailNavBar',
   components: {
-    GoodsListItem,
+    NavBar,
   },
-  props: {
-    goods: {
-      type: Array,
-      defaule() {
-        return [];
-      },
-    },
-  },
+  props: {},
   data() {
     //这里存放数据
-    return {};
+    return {
+      title: ['商品', '参数', '评论', '推荐'],
+      currentIndex: 0,
+    };
   },
   //计算属性 类似于data概念
   computed: {},
@@ -37,7 +41,9 @@ export default {
   watch: {},
   //方法集合
   methods: {
-
+    titleClick(index) {
+      this.currentIndex = index;
+    }
   },
   //声明周期 - 创建完成（可以访问当前this实例）
   created() {},
@@ -53,11 +59,17 @@ export default {
 };
 </script>
 <style scoped>
-.goods {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-
-  padding: 2px;
-}
+  .title {
+    display: flex;
+  }
+  .title div {
+    flex: 1;
+  }
+  .active  {
+    color: black;
+  }
+  .back img {
+    margin-left: 20px;
+    margin-top: 12px;
+  }
 </style>

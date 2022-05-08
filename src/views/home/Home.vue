@@ -1,13 +1,25 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <scroll class="content" ref="scroll" :probe-type="3" :pull-up-load="true" @pullingUp="loadMore" @scroll="contentScroll">
-      <home-swiper :banners="banners"/>
-      <recommend-view :recommends="recommends"/>
-      <feature-view></feature-view>
-      <tab-control class="tab-control" 
+    <tab-control class="tab-control" 
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
+        v-show="isShowTabControl"
+        ref="tabControl1"
+      ></tab-control>
+    <scroll class="content" 
+        ref="scroll" 
+        :probe-type="3" 
+        :pull-up-load="true" 
+        @pullingUp="loadMore" 
+        @scroll="contentScroll">
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
+      <recommend-view :recommends="recommends"/>
+      <feature-view></feature-view>
+      <tab-control 
+        :titles="['流行', '新款', '精选']"
+        @tabClick="tabClick"
+        ref="tabControl2"
       ></tab-control>
       <goods-list :goods="goods[currentType].list"></goods-list>
     </scroll>
@@ -53,9 +65,24 @@
         },
         currentType: 'pop',
         isShowBackTop: false,
+        isShowTabControl: false,
+        tabOffsetTop: 0,
+        saveY: 0,
       }
     },
     methods: {
+      debounce(func, delay) {
+        let timer = null;
+        let context = this;
+        return function(...args){
+          if (timer) {
+            clearTimeout(timer)
+          }
+          timer = setTimeout(() => {
+            func.apply(context, args);
+          }, delay);
+        }
+      },
       loadMore() {
         this.getHomeGoods(this.currentType);
         this.$refs.scroll.refresh();
@@ -84,12 +111,17 @@
       },
       contentScroll(position) {
         this.isShowBackTop = -position.y > 1000;
-      }
+        this.isShowTabControl = (-position.y) > this.tabOffsetTop;
+        console.log(this.isShowTabControl);
+      },
+      swiperImageLoad() {
+        this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
+      },
     },
     computed: {
       showGoods() {
         return this.goods[this.currentType].list;
-      }
+      },
     },
     created() {
       // 1.请求多个数据
@@ -97,6 +129,20 @@
       this.getHomeGoods('pop');
       this.getHomeGoods('news');
       this.getHomeGoods('sell');
+
+    },
+    mounted() {
+      const refresh = this.debounce(this.$refs.scroll.refresh, 50)
+      this.$bus.$on('itemImageLoad', () => {
+        refresh();
+      })
+    },
+    activated() {
+      this.$refs.scroll.scrollTo(0, this.saveY, 0);
+      this.$refs.scroll.refresh();
+    },
+    deactivated() {
+      this.saveY = this.$refs.scroll.getScrollY;
     }
   }
 </script>
@@ -120,8 +166,8 @@
   }
 
   .tab-control {
-    position: sticky;
-    top: 44px;
+    position: relative;
+    z-index: 9;
   }
   .content {
     height: calc(100vh - 93px);
